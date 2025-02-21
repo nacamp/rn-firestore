@@ -1,0 +1,95 @@
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "./PlatformWrapper";
+
+export default function TabView() {
+  const [activeTab, setActiveTab] = useState(0);
+  const tabs = [
+    { label: "Tab 1", content: "This is the content of Tab 11" },
+    { label: "Tab 2", content: "This is the content of Tab 2" },
+    { label: "Tab 3", content: "This is the content of Tab 3" },
+  ];
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.tabHeader}>
+        {tabs.map((tab, index) => {
+          const isActive = activeTab === index;
+          return (
+            <TouchableOpacity
+              key={index}
+              onPress={() => setActiveTab(index)}
+              style={{
+                ...styles.tabButton,
+                ...(isActive && styles.activeTab),
+              }}
+            >
+              <Text style={{...styles.tabText, ...(isActive && styles.activeText)}} block>
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+      <View style={styles.tabContent}>
+        <Text style={styles.contentText}>{tabs[activeTab].content}</Text>
+      </View>
+    </View>
+  );
+}
+
+// ✅ React Native 스타일 적용 (StyleSheet 사용)
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: "column",
+    width: "100%",
+    // alignSelf: "center",
+    padding: 16,
+  },
+  tabHeader: {
+    flexDirection: "row",
+    borderBottomWidth: 2,
+    borderBottomColor: "#ddd",
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "color 0.3s ease-in-out, border-bottom-color 0.3s ease-in-out",
+    // background: "none",
+    // outline: "none",
+    border: "none",
+    borderBottomWidth: 2,
+    borderBottomStyle: "solid",
+    borderBottomColor: "#ddd",
+    color: "#555"
+  },
+  activeTab: {
+    borderBottomWidth: 3,
+    borderBottomStyle: "solid",
+    borderBottomColor: "#007bff",
+    color: "#007bff"
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#555",
+  },
+  activeText: {
+    color: "#007bff",
+  },
+  tabContent: {
+    marginTop: 8,
+    padding: 16,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 4,
+    minHeight: 80,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  contentText: {
+    fontSize: 16,
+    color: "#333",
+  },
+});
