@@ -1,14 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "./PlatformWrapper";
 
-export default function TabView() {
-  const [activeTab, setActiveTab] = useState(0);
-  const tabs = [
-    { label: "Tab 1", content: "This is the content of Tab 11" },
-    { label: "Tab 2", content: "This is the content of Tab 2" },
-    { label: "Tab 3", content: "This is the content of Tab 3" },
-  ];
+interface TabItem {
+  label: string;
+  content: React.ReactNode; // ✅ 콘텐츠를 React 노드로 받음
+}
 
+interface TabViewProps {
+  tabs: TabItem[];
+  activeTab: number;
+  setActiveTab: (tabIndex: number) => void;
+}
+
+const TabView = ({ tabs, activeTab, setActiveTab }: TabViewProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.tabHeader}>
@@ -23,16 +27,14 @@ export default function TabView() {
                 ...(isActive && styles.activeTab),
               }}
             >
-              <Text style={{...styles.tabText, ...(isActive && styles.activeText)}} block>
+              <Text style={{ ...styles.tabText, ...(isActive && styles.activeText) }} block>
                 {tab.label}
               </Text>
             </TouchableOpacity>
           );
         })}
       </View>
-      <View style={styles.tabContent}>
-        <Text style={styles.contentText}>{tabs[activeTab].content}</Text>
-      </View>
+      <View style={styles.tabContent}>{tabs[activeTab].content}</View>
     </View>
   );
 }
@@ -93,3 +95,6 @@ const styles = StyleSheet.create({
     color: "#333",
   },
 });
+
+
+export default TabView;
