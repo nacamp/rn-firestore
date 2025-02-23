@@ -45,8 +45,8 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "column",
     width: "100%",
-    // alignSelf: "center",
     padding: 16,
+    minHeight: 0,  // 스크로링 가능하도록 최소 높이 설정
   },
   tabHeader: {
     flexDirection: "row",
@@ -86,9 +86,10 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#f8f9fa",
     borderRadius: 4,
-    minHeight: 80,
     alignItems: "center",
     justifyContent: "center",
+    flex: 1,
+    minHeight: 0, // 스크로링 가능하도록 최소 높이 설정
   },
   contentText: {
     fontSize: 16,
