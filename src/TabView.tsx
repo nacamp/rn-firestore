@@ -86,8 +86,8 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#f8f9fa",
     borderRadius: 4,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: "flex-start",
+    //justifyContent: "center",
     flex: 1,
     minHeight: 0, // 스크로링 가능하도록 최소 높이 설정
   },

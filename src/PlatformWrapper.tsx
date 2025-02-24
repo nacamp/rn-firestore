@@ -19,7 +19,7 @@ export const View = ({ children, style }: { children: React.ReactNode; style?: a
 /** ✅ ScrollView 래핑 */
 export const ScrollView = ({ children, style, contentContainerStyle }: { children: React.ReactNode; style?: any; contentContainerStyle?: any }) => {
   return isWeb ? (
-    <div style={{ overflowY: "auto", ...style }}>
+    <div style={{  overflowY: "auto", ...style }}>
       <div style={{ display: "flex", flexDirection: "column", ...contentContainerStyle }}>{children}</div>
     </div>
   ) : (
@@ -55,16 +55,15 @@ export const Text = ({ children, style, block = false }: { children: React.React
 export const TextInput = ({ style, multiline = false, onChangeText, ...props }: any) => {
   return isWeb ? (
     multiline ? (
-      /** ✅ 웹에서 `multiline`일 경우, `<textarea>`로 변경 */
       <textarea
-        style={{ ...style, border: "1px solid #999", padding: "5px", width: "100%", height: "100px", resize: "vertical" }}
+        style={{ ...style, border: "0px solid #999", padding: "1px", width: "100%", height: "100%", resize: "vertical" }}
         onChange={(e) => onChangeText?.(e.target.value)} // ✅ 네이티브와 동일한 onChangeText 지원
         {...props}
       />
     ) : (
       /** ✅ 기본적으로 `<input>` 사용 */
       <input
-        style={{ ...style, border: "1px solid #999", padding: "5px" }}
+        style={{ ...style, border: "0px solid #999", padding: "1px" }}
         onChange={(e) => onChangeText?.(e.target.value)} // ✅ onChangeText 사용 가능하게 변환
         {...props}
       />
