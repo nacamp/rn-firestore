@@ -68,7 +68,7 @@ const MacOSLayout = () => {
         >
           {dummyCollection.length > 0 ? (
             dummyCollection.map((item, index) => (
-              <TouchableOpacity style={{ alignItems: "flex-start", background: 'inherit', border:'none' }} key={index} onPress={() => handleItemClick(`${index}-${item}`)}>
+              <TouchableOpacity style={{ alignItems: "flex-start", background: 'inherit', border: 'none' }} key={index} onPress={() => handleItemClick(`${index}-${item}`)}>
                 <Text style={{ ...styles.historyText }}>
                   {index}-{item}
                 </Text>
@@ -109,34 +109,97 @@ const MacOSLayout = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, flexDirection: "row", height: "100%", minHeight: 0, backgroundColor: '#1E1E1E', border: '1px #ffffff solid', color: 'white' },
-  leftColumn: { flex: 1, flexDirection: "column", justifyContent: "flex-start", height: "100%", background: 'inherit', border: '1px #949494 solid', },
-  rightColumn: { flex: 3, flexDirection: "column", minHeight: 0, background: 'inherit' },
+  container: {
+    flex: 1,
+    flexDirection: "row",
 
-  topRow: { flex: 1, flexDirection: "column", background: 'inherit', alignItems: "center", padding: 0 },
+    height: "100%",
+    minHeight: 0,
+    border: '1px #ffffff solid',
+
+    backgroundColor: '#1E1E1E',
+    color: 'white'
+  },
+  leftColumn: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "flex-start",
+
+    height: "100%",
+    border: '1px #949494 solid',
+
+    background: 'inherit',
+  },
+  rightColumn: {
+    flex: 3,
+    flexDirection: "column",
+
+    minHeight: 0,
+
+    background: 'inherit'
+  },
+  topRow: {
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "center",
+
+    padding: 0,
+
+    background: 'inherit'
+  },
   input: {
     flex: 3,
+
     height: "100%",
     width: "100%",
     border: "none",
+
     background: '#2C2C2C',
     color: 'white',
   },
-  buttonGroup: { flex: 1, flexDirection: "row", background: 'inherit', width: "100%", justifyContent: "space-between", margin: 0 , },
-  button: { flex: 1, background: '#2C2C2C',  minWidth: 70, padding: 8, borderRadius: 8, overflow: 'hidden', border: '1px #949494 solid', justifyContent: 'center', alignItems: 'center', paddingVertical: 5, marginVertical: 0, marginHorizontal: 2, color: 'white' },
+  buttonGroup: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
 
+    width: "100%",
+    margin: 0,
 
-  bottomRow: { flex: 2,  background: 'inherit', minHeight: 0 },
-  // HistoryTab
-  historyText: { alignItems: "flex-start", fontSize: 16, paddingVertical: 5,  color: "white" },
+    background: 'inherit',
+  },
+  button: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+
+    border: '1px #949494 solid', 
+    borderRadius: 8, 
+    paddingVertical: 5, 
+    marginVertical: 0, 
+    marginHorizontal: 2,
+    minWidth: 70, 
+    padding: 8, 
+
+    background: '#2C2C2C', 
+    color: 'white',
+    overflow: 'hidden',   
+  },
+  bottomRow: { 
+    flex: 2, 
+    
+    flexDirection: "column",
+
+    background: 'inherit'
+  },
+  historyText: { 
+    alignItems: "flex-start", 
+
+    paddingVertical: 5,
+    
+    fontSize: 16,  
+    color: "white" 
+  },
 
 });
 
 export default MacOSLayout;
-
-/*
-         <div style={{ flex: '1 1 0', minHeight: 50, height: 32, minWidth: 70, padding: 8, background: '#303030', borderRadius: 8, overflow: 'hidden', border: '1px #949494 solid', justifyContent: 'center', alignItems: 'center', gap: 8, display: 'flex' }}>
-          <div style={{ color: 'white' }}>Sign in</div>
-        </div>
-
-*/
