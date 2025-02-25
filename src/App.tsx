@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView } from "./PlatformWrapper"; // ✅ 웹 & 네이티브 공통 컴포넌트
 import TabView from "./TabView"; // ✅ 웹 & 네이티브 공통 컴포넌트
+import { Colors } from "react-native/Libraries/NewAppScreen";
 
 
 const HistoryTab = ({ queryHistory }: { queryHistory: string[] }) => (
   <ScrollView style={{
     width: "100%",
     maxHeight: "100%",
-    backgroundColor: "#fff0f0",
+    backgroundColor: "inherit",
   }}
+  // contentContainerStyle={{
+  //   backgroundColor: "inherit",
+  // }}
   >
     {queryHistory.length > 0 ? (
       queryHistory.map((item, index) => (
@@ -54,16 +58,17 @@ const MacOSLayout = () => {
         <ScrollView style={{
           width: "100%",
           maxHeight: "100%",
-          backgroundColor: "#fff0f0",
+          backgroundColor: "inherit",
           // justifyContent: "flex-start", // contentContainerStyle 에서만 사용가능
         }}
-        contentContainerStyle={{
-          alignItems: "flex-start", 
-        }}
+          contentContainerStyle={{
+            background: 'inherit',
+            alignItems: "flex-start",
+          }}
         >
           {dummyCollection.length > 0 ? (
             dummyCollection.map((item, index) => (
-              <TouchableOpacity style={{ ...styles.historyText }} key={index} onPress={() => handleItemClick(`${index}-${item}`)}>
+              <TouchableOpacity style={{ alignItems: "flex-start", background: 'inherit', border:'none' }} key={index} onPress={() => handleItemClick(`${index}-${item}`)}>
                 <Text style={{ ...styles.historyText }}>
                   {index}-{item}
                 </Text>
@@ -104,26 +109,34 @@ const MacOSLayout = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, flexDirection: "row", height: "100%", minHeight: 0 },
-  leftColumn: { flex: 1, flexDirection: "column",  justifyContent: "flex-start", height: "100%", backgroundColor: "#ddd" },
-  rightColumn: { flex: 3, flexDirection: "column", minHeight: 0 },
+  container: { flex: 1, flexDirection: "row", height: "100%", minHeight: 0, backgroundColor: '#1E1E1E', border: '1px #ffffff solid', color: 'white' },
+  leftColumn: { flex: 1, flexDirection: "column", justifyContent: "flex-start", height: "100%", background: 'inherit', border: '1px #949494 solid', },
+  rightColumn: { flex: 3, flexDirection: "column", minHeight: 0, background: 'inherit' },
 
-  topRow: { flex: 1, flexDirection: "column", backgroundColor: "#ccc", alignItems: "center", padding: 0 },
+  topRow: { flex: 1, flexDirection: "column", background: 'inherit', alignItems: "center", padding: 0 },
   input: {
     flex: 3,
     height: "100%",
     width: "100%",
     border: "none",
+    background: '#2C2C2C',
+    color: 'white',
   },
-  buttonGroup: { flex: 1, flexDirection: "row", width: "100%", justifyContent: "space-between", margin: 0 },
-  button: { flex: 1, backgroundColor: "#888", paddingVertical: 5, marginVertical: 0, marginHorizontal: 2, alignItems: "center" },
+  buttonGroup: { flex: 1, flexDirection: "row", background: 'inherit', width: "100%", justifyContent: "space-between", margin: 0 , },
+  button: { flex: 1, background: '#2C2C2C',  minWidth: 70, padding: 8, borderRadius: 8, overflow: 'hidden', border: '1px #949494 solid', justifyContent: 'center', alignItems: 'center', paddingVertical: 5, marginVertical: 0, marginHorizontal: 2, color: 'white' },
 
 
-  bottomRow: { flex: 2, backgroundColor: "#bbb", minHeight: 0 },
+  bottomRow: { flex: 2,  background: 'inherit', minHeight: 0 },
   // HistoryTab
-  historyText: { alignItems: "flex-start", fontSize: 16, paddingVertical: 5, color: "#000" },
+  historyText: { alignItems: "flex-start", fontSize: 16, paddingVertical: 5,  color: "white" },
 
 });
 
 export default MacOSLayout;
 
+/*
+         <div style={{ flex: '1 1 0', minHeight: 50, height: 32, minWidth: 70, padding: 8, background: '#303030', borderRadius: 8, overflow: 'hidden', border: '1px #949494 solid', justifyContent: 'center', alignItems: 'center', gap: 8, display: 'flex' }}>
+          <div style={{ color: 'white' }}>Sign in</div>
+        </div>
+
+*/

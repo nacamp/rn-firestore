@@ -47,11 +47,13 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 16,
     minHeight: 0,  // 스크로링 가능하도록 최소 높이 설정
+    background: 'inherit',
   },
   tabHeader: {
     flexDirection: "row",
     borderBottomWidth: 2,
     borderBottomColor: "#ddd",
+    background: 'inherit',
   },
   tabButton: {
     flex: 1,
@@ -59,6 +61,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     transition: "color 0.3s ease-in-out, border-bottom-color 0.3s ease-in-out",
+    background: '#1E1E1E',
     // background: "none",
     // outline: "none",
     border: "none",
@@ -76,15 +79,18 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#555",
+    //color: "#555",
+    color: "#444444",
   },
   activeText: {
-    color: "#007bff",
+    color: "white",
   },
   tabContent: {
     marginTop: 8,
     padding: 16,
-    backgroundColor: "#f8f9fa",
+    //backgroundColor: "#f8f9fa",
+    background: 'inherit',
+    border: '1px #949494 solid',
     borderRadius: 4,
     alignItems: "flex-start",
     //justifyContent: "center",
@@ -92,8 +98,9 @@ const styles = StyleSheet.create({
     minHeight: 0, // 스크로링 가능하도록 최소 높이 설정
   },
   contentText: {
+    background: 'inherit',
     fontSize: 16,
-    color: "#333",
+    color: "white",
   },
 });
 

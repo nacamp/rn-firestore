@@ -30,9 +30,10 @@ export const ScrollView = ({ children, style, contentContainerStyle }: { childre
 };
 
 /** ✅ TouchableOpacity 래핑 */
+// background: "none", border: "none",
 export const TouchableOpacity = ({ children, style, onPress }: { children: React.ReactNode; style?: any; onPress?: () => void }) => {
   return isWeb ? (
-    <button style={{ ...style, background: "none", border: "none", cursor: "pointer" }} onClick={onPress}>
+    <button style={{ ...style, cursor: "pointer" }} onClick={onPress}>
       {children}
     </button>
   ) : (
