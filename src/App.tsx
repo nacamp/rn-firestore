@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView } from "./PlatformWrapper"; // ✅ 웹 & 네이티브 공통 컴포넌트
-import TabView from "./TabView"; // ✅ 웹 & 네이티브 공통 컴포넌트
-import { Colors } from "react-native/Libraries/NewAppScreen";
-
+import TabView from "./TabView"; 
+import {Platform} from "react-native";
 
 const HistoryTab = ({ queryHistory }: { queryHistory: string[] }) => (
   <ScrollView style={{
@@ -115,7 +114,10 @@ const styles = StyleSheet.create({
 
     height: "100%",
     minHeight: 0,
-    border: '1px #ffffff solid',
+    ...Platform.select({
+      web: { border: "1px #949494 solid" },
+      default: { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" }, // Android/iOS에서 적용
+    }),
 
     backgroundColor: '#1E1E1E',
     color: 'white'
@@ -126,7 +128,10 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
 
     height: "100%",
-    border: '1px #949494 solid',
+    ...Platform.select({
+      web: { border: "1px #949494 solid" },
+      default: { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" }, // Android/iOS에서 적용
+    }),
 
     background: 'inherit',
   },
@@ -172,7 +177,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center', 
     alignItems: 'center', 
 
-    border: '1px #949494 solid', 
+    ...Platform.select({
+      web: { border: "1px #949494 solid" },
+      default: { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" }, // Android/iOS에서 적용
+    }),
     borderRadius: 8, 
     paddingVertical: 5, 
     marginVertical: 0, 
