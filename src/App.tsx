@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { Platform } from "react-native";
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView } from "./PlatformWrapper"; // ✅ 웹 & 네이티브 공통 컴포넌트
-import TabView from "./TabView"; 
-import {Platform} from "react-native";
+import TabView from "./TabView";
+import { queryDocuments } from "./firestoreUtils";
+import { logIn, signUp, logOut, getCurrentUser } from "./auth";
+
 
 const HistoryTab = ({ queryHistory }: { queryHistory: string[] }) => (
   <ScrollView style={{
@@ -26,22 +29,67 @@ const HistoryTab = ({ queryHistory }: { queryHistory: string[] }) => (
 );
 
 
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+};
+
 const MacOSLayout = () => {
   const [inputText, setInputText] = useState("");
   const [queryHistory, setQueryHistory] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0);
+  const [user, setUser] = useState<null | { uid: string; email: string }>(null);
 
   const tabs = [
     { label: "Result", content: <Text style={styles.contentText}>This is the content of Result Tab</Text> },
     { label: "Query", content: <HistoryTab queryHistory={queryHistory} /> },
   ];
 
-  const handleRun = () => {
+  useEffect(() => {
+    const checkUser = async () => {
+      const currentUser = await getCurrentUser();
+      if (currentUser) {
+        setUser({ uid: currentUser.uid, email: currentUser.email || "" });
+      } else {
+        setUser(null);
+      }
+    };
+    checkUser();
+  }, []);
+
+  const handleRun = async () => {
+
     console.log("Run 버튼 클릭");
+    const queriedUsers = await queryDocuments("user", "name", "이현");
+    console.log("Queried users:", queriedUsers);
+
+    console.log(firebaseConfig.apiKey);
     if (inputText.trim().length > 0) {
       setQueryHistory((prevHistory) => [inputText, ...prevHistory]); // 새로운 입력값을 히스토리 앞에 추가
       setActiveTab(1);
     }
+  };
+
+  const handleLogin = async () => {
+    var email = import.meta.env.VITE_FIREBASE_EMAIL as string
+    var password =  import.meta.env.VITE_FIREBASE_PASSWORD as string
+    try {
+      const user = await logIn(email, password);
+      setUser({ uid: user.uid, email: user.email || "" });
+      console.log("로그인된 사용자:", user);
+    } catch (error) {
+      console.error("로그인 실패:", error);
+    }
+  };
+
+  const handleLogout = async () => {
+    await logOut();
+    setUser(null);
   };
 
   const dummyCollection = Array(5).fill("dummy collection");
@@ -92,6 +140,16 @@ const MacOSLayout = () => {
             <TouchableOpacity style={styles.button} onPress={handleRun}>
               <Text style={styles.buttonText}>Run</Text>
             </TouchableOpacity>
+
+            {!user ? (
+              <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                <Text style={styles.buttonText}>Login</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={styles.button} onPress={handleLogout}>
+                <Text style={styles.buttonText}>Logout</Text>
+              </TouchableOpacity>
+            )}
             {["버튼2", "버튼3", "버튼4"].map((label, index) => (
               <TouchableOpacity key={index} style={styles.button}>
                 <Text style={styles.buttonText}>{label}</Text>
@@ -172,40 +230,40 @@ const styles = StyleSheet.create({
 
     background: 'inherit',
   },
-  button: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
+  button: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
 
     ...Platform.select({
       web: { border: "1px #949494 solid" },
       default: { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" }, // Android/iOS에서 적용
     }),
-    borderRadius: 8, 
-    paddingVertical: 5, 
-    marginVertical: 0, 
+    borderRadius: 8,
+    paddingVertical: 5,
+    marginVertical: 0,
     marginHorizontal: 2,
-    minWidth: 70, 
-    padding: 8, 
+    minWidth: 70,
+    padding: 8,
 
-    background: '#2C2C2C', 
+    background: '#2C2C2C',
     color: 'white',
-    overflow: 'hidden',   
+    overflow: 'hidden',
   },
-  bottomRow: { 
-    flex: 2, 
-    
+  bottomRow: {
+    flex: 2,
+
     flexDirection: "column",
 
     background: 'inherit'
   },
-  historyText: { 
-    alignItems: "flex-start", 
+  historyText: {
+    alignItems: "flex-start",
 
     paddingVertical: 5,
-    
-    fontSize: 16,  
-    color: "white" 
+
+    fontSize: 16,
+    color: "white"
   },
 
 });
