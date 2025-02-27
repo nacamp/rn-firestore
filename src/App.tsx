@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Platform } from "react-native";
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView } from "./PlatformWrapper"; // ✅ 웹 & 네이티브 공통 컴포넌트
+import { IS_WEB, View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView } from "./PlatformWrapper"; // ✅ 웹 & 네이티브 공통 컴포넌트
 import TabView from "./TabView";
 import { queryDocuments } from "./firestoreUtils";
 import { logIn, signUp, logOut, getCurrentUser } from "./auth";
-
+import LoginModal from "./LoginModal";
 
 const HistoryTab = ({ queryHistory }: { queryHistory: string[] }) => (
   <ScrollView style={{
@@ -44,6 +43,7 @@ const MacOSLayout = () => {
   const [queryHistory, setQueryHistory] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0);
   const [user, setUser] = useState<null | { uid: string; email: string }>(null);
+  const [isLoginOpen, setLoginOpen] = useState(false);
 
   const tabs = [
     { label: "Result", content: <Text style={styles.contentText}>This is the content of Result Tab</Text> },
@@ -63,7 +63,6 @@ const MacOSLayout = () => {
   }, []);
 
   const handleRun = async () => {
-
     console.log("Run 버튼 클릭");
     const queriedUsers = await queryDocuments("user", "name", "이현");
     console.log("Queried users:", queriedUsers);
@@ -72,18 +71,6 @@ const MacOSLayout = () => {
     if (inputText.trim().length > 0) {
       setQueryHistory((prevHistory) => [inputText, ...prevHistory]); // 새로운 입력값을 히스토리 앞에 추가
       setActiveTab(1);
-    }
-  };
-
-  const handleLogin = async () => {
-    var email = import.meta.env.VITE_FIREBASE_EMAIL as string
-    var password =  import.meta.env.VITE_FIREBASE_PASSWORD as string
-    try {
-      const user = await logIn(email, password);
-      setUser({ uid: user.uid, email: user.email || "" });
-      console.log("로그인된 사용자:", user);
-    } catch (error) {
-      console.error("로그인 실패:", error);
     }
   };
 
@@ -100,6 +87,7 @@ const MacOSLayout = () => {
   return (
 
     <View style={styles.container}>
+      <LoginModal visible={isLoginOpen} onClose={() => setLoginOpen(false)} onLoginSuccess={setUser} />
       <View style={styles.leftColumn}>
         <Text>collection list</Text>
         <ScrollView style={{
@@ -142,7 +130,7 @@ const MacOSLayout = () => {
             </TouchableOpacity>
 
             {!user ? (
-              <TouchableOpacity style={styles.button} onPress={handleLogin}>
+              <TouchableOpacity style={styles.button} onPress={() => setLoginOpen(true)}>
                 <Text style={styles.buttonText}>Login</Text>
               </TouchableOpacity>
             ) : (
@@ -172,10 +160,9 @@ const styles = StyleSheet.create({
 
     height: "100%",
     minHeight: 0,
-    ...Platform.select({
-      web: { border: "1px #949494 solid" },
-      default: { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" }, // Android/iOS에서 적용
-    }),
+    ...IS_WEB
+    ? { border: "1px #949494 solid" }
+    : { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" },
 
     backgroundColor: '#1E1E1E',
     color: 'white'
@@ -186,10 +173,9 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
 
     height: "100%",
-    ...Platform.select({
-      web: { border: "1px #949494 solid" },
-      default: { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" }, // Android/iOS에서 적용
-    }),
+    ...IS_WEB
+    ? { border: "1px #949494 solid" }
+    : { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" },
 
     background: 'inherit',
   },
@@ -235,10 +221,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
 
-    ...Platform.select({
-      web: { border: "1px #949494 solid" },
-      default: { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" }, // Android/iOS에서 적용
-    }),
+    ...IS_WEB
+    ? { border: "1px #949494 solid" }
+    : { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" },
     borderRadius: 8,
     paddingVertical: 5,
     marginVertical: 0,

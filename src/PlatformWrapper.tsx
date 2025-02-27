@@ -9,7 +9,9 @@ import {
   StyleSheet as RNStyleSheet,
 } from "react-native";
 
-const isWeb = Platform.OS === "web";
+
+export const IS_WEB = Platform.OS === "web"; // ✅ export된 전역 상수
+const isWeb = IS_WEB; // ✅ 내부에서는 소문자로 사용
 
 /** ✅ View 래핑 */
 export const View = ({ children, style }: { children: React.ReactNode; style?: any }) => {
