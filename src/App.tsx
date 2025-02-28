@@ -1,89 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { IS_WEB, View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView } from "./PlatformWrapper"; // ✅ 웹 & 네이티브 공통 컴포넌트
+import { IS_WEB, View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView } from "./PlatformWrapper";
 import TabView from "./TabView";
-import { queryDocuments } from "./firestoreUtils";
-import { logIn, signUp, logOut, getCurrentUser } from "./auth";
+import { logOut, getCurrentUser } from "./auth";
 import LoginModal from "./LoginModal";
-import { db } from "./firebase";
-import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where, orderBy, limit } from "firebase/firestore";
+import {History,HistoryItem} from "./History";
+import {executeFirestoreQuery  } from "./firestoreService";
 
-const HistoryTab = ({ queryHistory }: { queryHistory: string[] }) => (
-  <ScrollView style={{
-    width: "100%",
-    maxHeight: "100%",
-    backgroundColor: "inherit",
-  }}
-  // contentContainerStyle={{
-  //   backgroundColor: "inherit",
-  // }}
-  >
-    {queryHistory.length > 0 ? (
-      queryHistory.map((item, index) => (
-        <Text key={index} style={{ ...styles.historyText, whiteSpace: "pre-line" }}>
-          {item}
-        </Text>
-      ))
-    ) : (
-      <Text style={styles.historyText}>No history</Text>
-    )}
-  </ScrollView>
-);
+type HistoryType = "query" | "result";
 
-const ResultTab = ({ queryHistory }: { queryHistory: string[] }) => (
-  <ScrollView style={{
-    width: "100%",
-    maxHeight: "100%",
-    backgroundColor: "inherit",
-  }}
-  // contentContainerStyle={{
-  //   backgroundColor: "inherit",
-  // }}
-  >
-    {queryHistory.length > 0 ? (
-      queryHistory.map((item, index) => (
-        <Text key={index} style={{ ...styles.historyText, whiteSpace: "pre-line" }}>
-          {item}
-        </Text>
-      ))
-    ) : (
-      <Text style={styles.historyText}>No history</Text>
-    )}
-  </ScrollView>
-);
-
-const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
-
-
-async function evalQuery(userQuery: string) {
-  try {
-    (globalThis as any).db = db;
-    (globalThis as any).query = query;
-    (globalThis as any).collection = collection;
-    (globalThis as any).where = where;
-    (globalThis as any).limit = limit;
-    (globalThis as any).orderBy = orderBy;
-    (globalThis as any).getDocs = getDocs;
-    const result = await eval(userQuery); // 🔥 eval 실행
-    console.log("Query Result:", result);
-    return result;
-  } catch (error) {
-    console.error("Error executing query:", error);
-    return { error: error };
-  }
-}
-
-const MacOSLayout = () => {
+const App = () => {
   const [inputText, setInputText] = useState("");
-  const [queryHistory, setQueryHistory] = useState<string[]>([]);
-  const [resultHistory, setResultHistory] = useState<string[]>([]);
+  const [queryHistory, setQueryHistory] = useState<HistoryItem[]>([]);
+  const [resultHistory, setResultHistory] = useState<HistoryItem[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0);
   const [user, setUser] = useState<null | { uid: string; email: string }>(null);
   const [isLoginOpen, setLoginOpen] = useState(false);
 
-
   const tabs = [
-    { label: "Result", content: <HistoryTab queryHistory={resultHistory} /> },
-    { label: "Query", content: <HistoryTab queryHistory={queryHistory} /> },
+    { label: "Result", content: <History history={resultHistory} onDelete={(index) => handleDelete(index, "result")} /> },
+    { label: "Query", content: <History history={queryHistory} onDelete={(index) => handleDelete(index, "query")} /> },
   ];
 
   useEffect(() => {
@@ -101,15 +36,16 @@ const MacOSLayout = () => {
   const handleRun = async () => {
     if (inputText.trim().length > 0) {
       console.log("Run 버튼 클릭");
-      const runQuery = new AsyncFunction("db", "query", "collection", "where", "limit", "orderBy", "getDocs", inputText);
-      setQueryHistory((prevHistory) => [inputText, ...prevHistory]); // 새로운 입력값을 히스토리 앞에 추가
-      // setResultHistory((prevHistory) => [inputText, ...prevHistory]); // 새로운 입력값을 히스토리 앞에 추가
-      runQuery(db, query, collection, where, limit, orderBy, getDocs)
+      // setQueryHistory((prevHistory) => [{ text: inputText, timestamp: new Date().toLocaleString() }, ...prevHistory]);
+      // setResultHistory((prevHistory) => [{ text: inputText, timestamp: new Date().toLocaleString() }, ...prevHistory]);
+      // const runQuery = new AsyncFunction("db", "query", "collection", "where", "limit", "orderBy", "getDocs", inputText);
+      // setQueryHistory((prevHistory) => [{ text: inputText, timestamp: new Date().toLocaleString() }, ...prevHistory]);
+      executeFirestoreQuery(inputText)
         .then((result: any) => {
-          setResultHistory((prevHistory) => [JSON.stringify(result, null, 2), ...prevHistory]); // 새로운 입력값을 히스토리 앞에 추가
+          setResultHistory((prevHistory) => [{ text: JSON.stringify(result, null, 2), timestamp: new Date().toLocaleString() }, ...prevHistory]);
         })
         .catch((error: any) => {
-          setResultHistory((prevHistory) => [JSON.stringify(error.message, null, 2), ...prevHistory]); // 새로운 입력값을 히스토리 앞에 추가
+          setResultHistory((prevHistory) => [{ text: JSON.stringify(error.message, null, 2), timestamp: new Date().toLocaleString() }, ...prevHistory]);
         });
       setActiveTab(0);
     }
@@ -120,8 +56,17 @@ const MacOSLayout = () => {
     setUser(null);
   };
 
-  // const dummyCollection = Array(5).fill("dummy collection");
-  const dummyCollection = ["user", "post", "comment", "like", "follow"];
+  const handleDelete = (index: number, type: HistoryType) => {
+    if (type === "query") {
+      setQueryHistory((prev) => prev.filter((_, i) => i !== index));
+    } else if (type === "result") {
+      setResultHistory((prev) => prev.filter((_, i) => i !== index));
+    }
+    console.log("Delete 버튼 클릭", type, index);
+  };
+
+  // const collectionList = Array(5).fill("dummy collection");
+  const collectionList = ["user", "getCategoriesWithContents", "sample"];
   const handleItemClick = (item: string) => {
     // const q =`
     //   const q = query(collection(db, "${item}")
@@ -133,13 +78,13 @@ const MacOSLayout = () => {
     // `;
 
     const q = `
-      const q = query(collection(db, "${item}")
-        //,where("key", "==", value)
-        ,limit(1)
-      );
-      return getDocs(q)
-        .then(querySnapshot => querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })))
-        .catch(error => ({ error: error.message }));
+const q = query(collection(db, "${item}")
+  //,where("key", "==", value)
+  ,limit(1)
+);
+return getDocs(q)
+  .then(querySnapshot => querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })))
+  .catch(error => ({ error: error.message }));
     `;
     setInputText(q);
     console.log(`${item} clicked`);
@@ -162,8 +107,8 @@ const MacOSLayout = () => {
             alignItems: "flex-start",
           }}
         >
-          {dummyCollection.length > 0 ? (
-            dummyCollection.map((item, index) => (
+          {collectionList.length > 0 ? (
+            collectionList.map((item, index) => (
               <TouchableOpacity style={{ alignItems: "flex-start", background: 'inherit', border: 'none' }} key={index} onPress={() => handleItemClick(`${item}`)}>
                 <Text style={{ ...styles.historyText }}>
                   {index}-{item}
@@ -298,6 +243,7 @@ const styles = StyleSheet.create({
   },
   bottomRow: {
     flex: 2,
+    minHeight: 0,
 
     flexDirection: "column",
 
@@ -314,4 +260,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default MacOSLayout;
+export default App;
