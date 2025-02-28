@@ -4,6 +4,8 @@ import TabView from "./TabView";
 import { queryDocuments } from "./firestoreUtils";
 import { logIn, signUp, logOut, getCurrentUser } from "./auth";
 import LoginModal from "./LoginModal";
+import { db } from "./firebase";
+import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where, orderBy, limit } from "firebase/firestore";
 
 const HistoryTab = ({ queryHistory }: { queryHistory: string[] }) => (
   <ScrollView style={{
@@ -27,26 +29,60 @@ const HistoryTab = ({ queryHistory }: { queryHistory: string[] }) => (
   </ScrollView>
 );
 
+const ResultTab = ({ queryHistory }: { queryHistory: string[] }) => (
+  <ScrollView style={{
+    width: "100%",
+    maxHeight: "100%",
+    backgroundColor: "inherit",
+  }}
+  // contentContainerStyle={{
+  //   backgroundColor: "inherit",
+  // }}
+  >
+    {queryHistory.length > 0 ? (
+      queryHistory.map((item, index) => (
+        <Text key={index} style={{ ...styles.historyText, whiteSpace: "pre-line" }}>
+          {item}
+        </Text>
+      ))
+    ) : (
+      <Text style={styles.historyText}>No history</Text>
+    )}
+  </ScrollView>
+);
 
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
-};
+const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
+
+
+async function evalQuery(userQuery: string) {
+  try {
+    (globalThis as any).db = db;
+    (globalThis as any).query = query;
+    (globalThis as any).collection = collection;
+    (globalThis as any).where = where;
+    (globalThis as any).limit = limit;
+    (globalThis as any).orderBy = orderBy;
+    (globalThis as any).getDocs = getDocs;
+    const result = await eval(userQuery); // 🔥 eval 실행
+    console.log("Query Result:", result);
+    return result;
+  } catch (error) {
+    console.error("Error executing query:", error);
+    return { error: error };
+  }
+}
 
 const MacOSLayout = () => {
   const [inputText, setInputText] = useState("");
   const [queryHistory, setQueryHistory] = useState<string[]>([]);
+  const [resultHistory, setResultHistory] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0);
   const [user, setUser] = useState<null | { uid: string; email: string }>(null);
   const [isLoginOpen, setLoginOpen] = useState(false);
 
+
   const tabs = [
-    { label: "Result", content: <Text style={styles.contentText}>This is the content of Result Tab</Text> },
+    { label: "Result", content: <HistoryTab queryHistory={resultHistory} /> },
     { label: "Query", content: <HistoryTab queryHistory={queryHistory} /> },
   ];
 
@@ -63,14 +99,19 @@ const MacOSLayout = () => {
   }, []);
 
   const handleRun = async () => {
-    console.log("Run 버튼 클릭");
-    const queriedUsers = await queryDocuments("user", "name", "이현");
-    console.log("Queried users:", queriedUsers);
-
-    console.log(firebaseConfig.apiKey);
     if (inputText.trim().length > 0) {
+      console.log("Run 버튼 클릭");
+      const runQuery = new AsyncFunction("db", "query", "collection", "where", "limit", "orderBy", "getDocs", inputText);
       setQueryHistory((prevHistory) => [inputText, ...prevHistory]); // 새로운 입력값을 히스토리 앞에 추가
-      setActiveTab(1);
+      // setResultHistory((prevHistory) => [inputText, ...prevHistory]); // 새로운 입력값을 히스토리 앞에 추가
+      runQuery(db, query, collection, where, limit, orderBy, getDocs)
+        .then((result: any) => {
+          setResultHistory((prevHistory) => [JSON.stringify(result, null, 2), ...prevHistory]); // 새로운 입력값을 히스토리 앞에 추가
+        })
+        .catch((error: any) => {
+          setResultHistory((prevHistory) => [JSON.stringify(error.message, null, 2), ...prevHistory]); // 새로운 입력값을 히스토리 앞에 추가
+        });
+      setActiveTab(0);
     }
   };
 
@@ -79,8 +120,28 @@ const MacOSLayout = () => {
     setUser(null);
   };
 
-  const dummyCollection = Array(5).fill("dummy collection");
+  // const dummyCollection = Array(5).fill("dummy collection");
+  const dummyCollection = ["user", "post", "comment", "like", "follow"];
   const handleItemClick = (item: string) => {
+    // const q =`
+    //   const q = query(collection(db, "${item}")
+    //     //,where("key", "==", value)
+    //     ,limit(1)
+    //   );
+    //   const querySnapshot = await getDocs(q);
+    //   return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    // `;
+
+    const q = `
+      const q = query(collection(db, "${item}")
+        //,where("key", "==", value)
+        ,limit(1)
+      );
+      return getDocs(q)
+        .then(querySnapshot => querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })))
+        .catch(error => ({ error: error.message }));
+    `;
+    setInputText(q);
     console.log(`${item} clicked`);
   };
 
@@ -103,7 +164,7 @@ const MacOSLayout = () => {
         >
           {dummyCollection.length > 0 ? (
             dummyCollection.map((item, index) => (
-              <TouchableOpacity style={{ alignItems: "flex-start", background: 'inherit', border: 'none' }} key={index} onPress={() => handleItemClick(`${index}-${item}`)}>
+              <TouchableOpacity style={{ alignItems: "flex-start", background: 'inherit', border: 'none' }} key={index} onPress={() => handleItemClick(`${item}`)}>
                 <Text style={{ ...styles.historyText }}>
                   {index}-{item}
                 </Text>
@@ -161,8 +222,8 @@ const styles = StyleSheet.create({
     height: "100%",
     minHeight: 0,
     ...IS_WEB
-    ? { border: "1px #949494 solid" }
-    : { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" },
+      ? { border: "1px #949494 solid" }
+      : { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" },
 
     backgroundColor: '#1E1E1E',
     color: 'white'
@@ -174,8 +235,8 @@ const styles = StyleSheet.create({
 
     height: "100%",
     ...IS_WEB
-    ? { border: "1px solid #949494" }
-    : { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" },
+      ? { border: "1px solid #949494" }
+      : { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" },
 
     background: 'inherit',
   },
@@ -222,8 +283,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
 
     ...IS_WEB
-    ? { border: "1px solid #949494" }
-    : { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" },
+      ? { border: "1px solid #949494" }
+      : { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" },
     borderRadius: 8,
     paddingVertical: 5,
     marginVertical: 0,
