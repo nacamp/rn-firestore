@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
 
     height: "100%",
     ...IS_WEB
-    ? { border: "1px #949494 solid" }
+    ? { border: "1px solid #949494" }
     : { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" },
 
     background: 'inherit',
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
 
     ...IS_WEB
-    ? { border: "1px #949494 solid" }
+    ? { border: "1px solid #949494" }
     : { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" },
     borderRadius: 8,
     paddingVertical: 5,

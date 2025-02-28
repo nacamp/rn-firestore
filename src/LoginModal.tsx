@@ -78,13 +78,22 @@ const styles = StyleSheet.create({
     },
     input: {
         width: "100%",
-        padding: 10,
-        borderWidth: 1,
-        borderColor: "#ccc",
+        ...(IS_WEB
+            ? { padding: "10px 10px", boxSizing: "border-box",} // boxSizing: "border-box" 로 input 증가 방지
+            : { paddingVertical: 10, paddingHorizontal: 10, maxWidth: "97%" }
+        ),
+        // borderWidth: 1,
+        // borderColor: "#ccc",
         borderRadius: 5,
         marginBottom: 10,
 
-        color: "black",
+        ...IS_WEB
+        ? { border: "1px solid #949494" }
+        : { borderWidth: 1, borderStyle: "solid", borderColor: "#949494" },
+
+
+        background: "transparent",
+        color: "white",
         fontSize: 16,
     },
     buttonContainer: {
@@ -101,8 +110,8 @@ const styles = StyleSheet.create({
         padding: 10,
         marginHorizontal: 5,
         ...IS_WEB
-            ? { border: "1px #949494 solid" }
-            : { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" },
+        ? { border: "1px solid #949494" }
+        : { borderWidth: 1, borderColor: "#949494", borderStyle: "solid" },
         //borderRadius: 5,
     },
     cancelButton: {

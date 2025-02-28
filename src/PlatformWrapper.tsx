@@ -21,7 +21,7 @@ export const View = ({ children, style }: { children: React.ReactNode; style?: a
 /** ✅ ScrollView 래핑 */
 export const ScrollView = ({ children, style, contentContainerStyle }: { children: React.ReactNode; style?: any; contentContainerStyle?: any }) => {
   return isWeb ? (
-    <div style={{  overflowY: "auto", ...style }}>
+    <div style={{ overflowY: "auto", ...style }}>
       <div style={{ display: "flex", flexDirection: "column", ...contentContainerStyle }}>{children}</div>
     </div>
   ) : (
@@ -35,7 +35,7 @@ export const ScrollView = ({ children, style, contentContainerStyle }: { childre
 // background: "none", border: "none",
 export const TouchableOpacity = ({ children, style, onPress }: { children: React.ReactNode; style?: any; onPress?: () => void }) => {
   return isWeb ? (
-    <button style={{ ...style, cursor: "pointer" }} onClick={onPress}>
+    <button style={{ cursor: "pointer", ...style }} onClick={onPress}>
       {children}
     </button>
   ) : (
@@ -59,14 +59,14 @@ export const TextInput = ({ style, multiline = false, onChangeText, ...props }: 
   return isWeb ? (
     multiline ? (
       <textarea
-        style={{ ...style, border: "0px solid #999", padding: "1px", width: "100%", height: "100%", resize: "vertical" }}
+        style={{ border: "0px solid #999", padding: "1px", width: "100%", height: "100%", resize: "vertical", ...style, }}
         onChange={(e) => onChangeText?.(e.target.value)} // ✅ 네이티브와 동일한 onChangeText 지원
         {...props}
       />
     ) : (
       /** ✅ 기본적으로 `<input>` 사용 */
       <input
-        style={{ ...style, border: "0px solid #999", padding: "1px" }}
+        style={{ border: "0px solid #999", padding: "1px", ...style, }}
         onChange={(e) => onChangeText?.(e.target.value)} // ✅ onChangeText 사용 가능하게 변환
         {...props}
       />
