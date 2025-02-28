@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "column",
 
-    width: "100%",
+    //width: "100%", // 이게 들어가면 화면 오른쪽으로 더 커짐
     padding: 16,
     minHeight: 0,  // 스크로링 가능하도록 최소 높이 설정
 
