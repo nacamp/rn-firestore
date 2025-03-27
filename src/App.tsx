@@ -36,7 +36,7 @@ const App = () => {
   const handleRun = async () => {
     if (inputText.trim().length > 0) {
       console.log("Run 버튼 클릭");
-      // setQueryHistory((prevHistory) => [{ text: inputText, timestamp: new Date().toLocaleString() }, ...prevHistory]);
+      setQueryHistory((prevHistory) => [{ text: inputText, timestamp: new Date().toLocaleString() }, ...prevHistory]);
       // setResultHistory((prevHistory) => [{ text: inputText, timestamp: new Date().toLocaleString() }, ...prevHistory]);
       // const runQuery = new AsyncFunction("db", "query", "collection", "where", "limit", "orderBy", "getDocs", inputText);
       // setQueryHistory((prevHistory) => [{ text: inputText, timestamp: new Date().toLocaleString() }, ...prevHistory]);
